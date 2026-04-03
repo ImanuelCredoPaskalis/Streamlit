@@ -3,7 +3,7 @@ from PIL import Image
 import google.generativeai as genai
 
 # SET API KEY
-genai.configure(api_key="AIzaSyA32kG6VNkHJPJSiHqVszROEQlDV-KHqMo")
+genai.configure(api_key="AIzaSyAHL-NF8ExxE31WGAtwrtwyDtwBWE4Fixo")
 
 st.title("📸 AI Camera Analyzer (Gemini Version, Lebih Hemat)")
 
