@@ -4,7 +4,7 @@ import google.generativeai as genai
 from streamlit_option_menu import option_menu
 
 # SET API KEY
-genai.configure(api_key="AIzaSyChxH4yZakQwZQ7hljPH7Rvdtsg9FZS4dk")
+genai.configure(api_key="AIzaSyBkIp9tsKzmGcTzSwky_f7IX19FnYID_is")
 
 # Menu Utama
 with st.sidebar:
