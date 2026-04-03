@@ -1,3 +1,6 @@
 streamlit
 google-generativeai
 streamlit_option_menu
+matplotlib
+numpy
+opencv-python
