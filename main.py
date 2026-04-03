@@ -11,8 +11,7 @@ camera_image = st.camera_input("Ambil foto grafik fungsi kuadrat yang ingin dian
 
 if camera_image is not None and st.button("Analisis"):
     image = Image.open(camera_image)
-    st.subheader("🧠 Analisis AI (Gemini)")
-
+    st.subheader("Hasil Analisis:")
     with st.spinner("Analisis sedang berlangsung..."):
         try:
             model = genai.GenerativeModel("gemini-flash-latest")
