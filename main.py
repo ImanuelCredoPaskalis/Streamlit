@@ -17,7 +17,7 @@ if camera_image is not None:
 
     with st.spinner("AI lagi mikir... santai dia, gratis soalnya"):
         try:
-            model = genai.GenerativeModel("gemini-flash-latest")
+            model = genai.GenerativeModel("gemini-pro-latest")
 
             response = model.generate_content([
                 "jelaskan kesalahan matematika dalam bentuk poin-poin dari foto ini, serta berikan solusi yang benar",
