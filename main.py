@@ -5,7 +5,7 @@ import google.generativeai as genai
 # SET API KEY
 genai.configure(api_key="AIzaSyCpPSgC2RBk3rxS-P4R4FXYJI2pXQcuhCA")
 
-st.title("📸 AI Camera Analyzer (Gemini Version, Lebih Hemat)")
+st.title("Analisis Grafik Fungsi Kuadrat")
 
 camera_image = st.camera_input("Ambil foto")
 
@@ -15,7 +15,7 @@ if camera_image is not None:
 
     st.subheader("🧠 Analisis AI (Gemini)")
 
-    with st.spinner("AI lagi mikir... santai dia, gratis soalnya"):
+    with st.spinner("Analisis sedang berlangsung..."):
         try:
             model = genai.GenerativeModel("gemini-flash-latest")
 
