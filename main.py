@@ -7,12 +7,10 @@ genai.configure(api_key="AIzaSyCpPSgC2RBk3rxS-P4R4FXYJI2pXQcuhCA")
 
 st.title("Analisis Grafik Fungsi Kuadrat")
 
-camera_image = st.camera_input("Ambil foto")
+camera_image = st.camera_input("Ambil foto grafik fungsi kuadrat yang ingin dianalisis")
 
-if camera_image is not None:
+if camera_image is not None and st.button("Analisis"):
     image = Image.open(camera_image)
-    st.image(image, caption="📷 Hasil Foto", use_column_width=True)
-
     st.subheader("🧠 Analisis AI (Gemini)")
 
     with st.spinner("Analisis sedang berlangsung..."):
