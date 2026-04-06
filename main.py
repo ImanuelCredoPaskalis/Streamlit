@@ -107,7 +107,7 @@ if not st.session_state.logged_in:
 
 with st.sidebar:
     st.write(f"Masuk sebagai: {st.session_state.username}")
-
+    
     if st.button("Keluar"):
         st.session_state.logged_in = False
         st.session_state.username = ""
@@ -120,13 +120,21 @@ with st.sidebar:
         menu_icon="cast",
         default_index=0,
     )
-
+    st.sidebar.markdown("Oleh: Imanuel Credo Paskalis")
+    st.sidebar.markdown("Versi: 1.0.0")
+    st.sidebar.markdown(
+    "<p style='text-align: center; color: grey; opacity: 0.5;'>© 2026 Pendidikan Matematika USD</p>", 
+    unsafe_allow_html=True
+    )
 
 # BERANDA
 
 if selected == "Beranda":
-    st.title("Aplikasi Analisis Grafik Fungsi Kuadrat")
-    st.write("Gunakan menu di kiri untuk mulai.")
+    st.title("GrafKu")
+    st.write("Selamat datang di GrafKu! Aplikasi pembelajaran matematika yang memanfaatkan kecerdasan buatan untuk membantu kamu memahami konsep matematika dengan lebih mudah. Pilih menu di sidebar untuk mulai belajar!")
+    st.success("Tujuan Pembelajaran"
+               "\n1. Memahami konsep dasar fungsi kuadrat"
+               "\n2. Menganalisis grafik fungsi kuadrat")
 
 
 # ANALISIS GRAFIK (AI)
