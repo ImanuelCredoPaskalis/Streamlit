@@ -44,10 +44,6 @@ if "user_id" not in st.session_state:
 if "hasil_analisis" not in st.session_state:
     st.session_state.hasil_analisis = None
 
-if "tema" not in st.session_state:
-    st.session_state.tema = "Light"
-
-
 # LOGIN & REGISTER
 
 if not st.session_state.logged_in:
@@ -89,17 +85,6 @@ if not st.session_state.logged_in:
 
     st.stop()
 
-
-# TEMA
-
-if st.session_state.tema == "Dark":
-    st.markdown("""
-        <style>
-        body {background-color: #0E1117; color: white;}
-        </style>
-    """, unsafe_allow_html=True)
-
-
 # SIDEBAR
 
 with st.sidebar:
@@ -112,8 +97,8 @@ with st.sidebar:
 
     selected = option_menu(
         "Menu",
-        ["Beranda", "Analisis Grafik", "Kalkulator", "Materi", "Pengaturan"],
-        icons=["house", "graph-up", "calculator", "book", "gear"],
+        ["Beranda", "Analisis Grafik", "Kalkulator", "Materi", "Latihan Soal"],
+        icons=["house", "graph-up", "calculator", "book", "pen"],
         menu_icon="cast",
         default_index=0,
     )
@@ -196,12 +181,7 @@ elif selected == "Materi":
     st.write("Materi akan ditambahkan.")
 
 
-# PENGATURAN
-
-elif selected == "Pengaturan":
-    st.title("Pengaturan")
-
-    tema = st.selectbox("Pilih Tema", ["Light", "Dark"])
-    st.session_state.tema = tema
-
-    st.success(f"Tema aktif: {tema}")
+# LATIHAN SOAL
+elif selected == "Latihan Soal":
+    st.title("Latihan Soal")
+    st.write("Latihan soal akan ditambahkan.")
