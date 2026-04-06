@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import uuid
 import os
 import json
+import random
+import pandas as pd
 
 
 # API CONFIG
@@ -14,7 +16,7 @@ import json
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-# LOAD & SAVE USER (JSON)
+# USER DATABASE
 
 def load_users():
     try:
@@ -28,6 +30,22 @@ def save_users(users):
         json.dump(users, f)
 
 USERS = load_users()
+
+
+# SCORE DATABASE
+
+def load_scores():
+    try:
+        with open("scores.json", "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_scores(data):
+    with open("scores.json", "w") as f:
+        json.dump(data, f)
+
+SCORES = load_scores()
 
 
 # SESSION STATE
@@ -44,14 +62,14 @@ if "user_id" not in st.session_state:
 if "hasil_analisis" not in st.session_state:
     st.session_state.hasil_analisis = None
 
-# LOGIN & REGISTER
+
+# LOGIN / REGISTER
 
 if not st.session_state.logged_in:
     st.title("Masuk / Daftar")
 
     menu_auth = st.radio("Pilih Menu", ["Masuk", "Daftar"])
 
-    # LOGIN
     if menu_auth == "Masuk":
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
@@ -65,8 +83,7 @@ if not st.session_state.logged_in:
             else:
                 st.error("Username atau password salah")
 
-    # REGISTER
-    elif menu_auth == "Daftar":
+    else:
         new_user = st.text_input("Username Baru")
         new_pass = st.text_input("Password Baru", type="password")
         confirm_pass = st.text_input("Konfirmasi Password", type="password")
@@ -84,6 +101,7 @@ if not st.session_state.logged_in:
                 st.success("Registrasi berhasil! Silakan login.")
 
     st.stop()
+
 
 # SIDEBAR
 
@@ -111,7 +129,7 @@ if selected == "Beranda":
     st.write("Gunakan menu di kiri untuk mulai.")
 
 
-# ANALISIS GRAFIK
+# ANALISIS GRAFIK (AI)
 
 elif selected == "Analisis Grafik":
     st.title("Analisis Grafik")
@@ -123,7 +141,7 @@ elif selected == "Analisis Grafik":
 
         with st.spinner("Memproses..."):
             try:
-                model = genai.GenerativeModel("gemini-flash-latest")
+                model = genai.GenerativeModel("gemini-1.5-flash")
 
                 response = model.generate_content([
                     "Jelaskan kesalahan matematika dalam poin dan beri solusi",
@@ -181,7 +199,78 @@ elif selected == "Materi":
     st.write("Materi akan ditambahkan.")
 
 
-# LATIHAN SOAL
+# LATIHAN SOAL (UPGRADE)
+
 elif selected == "Latihan Soal":
     st.title("Latihan Soal")
-    st.write("Latihan soal akan ditambahkan.")
+
+    bank_soal = [
+        {"q": "2 + 3 =", "a": "5"},
+        {"q": "5 x 2 =", "a": "10"},
+        {"q": "10 - 4 =", "a": "6"},
+        {"q": "8 / 2 =", "a": "4"},
+        {"q": "3² =", "a": "9"},
+        {"q": "√16 =", "a": "4"},
+        {"q": "7 + 8 =", "a": "15"},
+        {"q": "6 x 6 =", "a": "36"},
+    ]
+
+    if "soal_aktif" not in st.session_state:
+        st.session_state.soal_aktif = random.sample(bank_soal, 5)
+
+    soal = st.session_state.soal_aktif
+    jawaban_user = []
+
+    st.subheader("Jawab soal berikut:")
+
+    for i, s in enumerate(soal):
+        jawab = st.text_input(f"Soal {i+1}: {s['q']}", key=f"soal_{i}")
+        jawaban_user.append(jawab)
+
+    if st.button("Kumpulkan Jawaban"):
+        skor = 0
+        hasil = []
+        for i, s in enumerate(soal):
+            if jawaban_user[i] == s["a"]:
+                skor += 20
+                hasil.append(1)
+            else:
+                hasil.append(0)
+
+        st.success(f"Skor kamu: {skor}")
+
+        st.session_state.detail = hasil
+        st.session_state.skor = skor
+
+        user = st.session_state.username
+
+        if user not in SCORES:
+            SCORES[user] = []
+
+        SCORES[user].append(skor)
+        save_scores(SCORES)
+        st.session_state.soal_aktif = random.sample(bank_soal, 5)
+        st.rerun()
+
+    # Pemberitauan detail jawaban
+    if "detail" in st.session_state:
+        st.subheader("Hasil Jawaban")
+        for i, hasil in enumerate(st.session_state.detail):
+            if hasil == 1:
+                st.success(f"Soal {i+1}: Jawaban Benar")
+            else:
+                st.error(f"Soal {i+1}: Jawaban Salah")
+
+    # Uji coba skor
+    if st.session_state.username in SCORES:
+        st.subheader("Riwayat Nilai")
+        data = SCORES[st.session_state.username]
+        percobaan = list(range(1, len(data)+1))
+        df = pd.DataFrame({"Percobaan ke-": percobaan, "Skor": data})
+        st.dataframe(df, hide_index=True)
+    if st.button("Reset Riwayat Nilai"):
+        if st.session_state.username in SCORES:
+            del SCORES[st.session_state.username]
+            save_scores(SCORES)
+            st.success("Riwayat nilai berhasil direset")
+            st.rerun()
