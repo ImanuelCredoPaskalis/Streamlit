@@ -106,17 +106,17 @@ if not st.session_state.logged_in:
 # SIDEBAR
 
 with st.sidebar:
-    st.write(f"Login sebagai: {st.session_state.username}")
+    st.write(f"Masuk sebagai: {st.session_state.username}")
 
-    if st.button("Logout"):
+    if st.button("Keluar"):
         st.session_state.logged_in = False
         st.session_state.username = ""
         st.rerun()
 
     selected = option_menu(
         "Menu",
-        ["Beranda", "Analisis Grafik", "Kalkulator", "Materi", "Latihan Soal"],
-        icons=["house", "graph-up", "calculator", "book", "pen"],
+        ["Beranda", "Analisis Grafik", "Kalkulator", "Materi", "Latihan Soal", "Pengaturan"],
+        icons=["house", "graph-up", "calculator", "book", "pen", "gear"],
         menu_icon="cast",
         default_index=0,
     )
@@ -274,3 +274,16 @@ elif selected == "Latihan Soal":
             save_scores(SCORES)
             st.success("Riwayat nilai berhasil direset")
             st.rerun()
+elif selected == "Pengaturan":
+    st.title("Pengaturan")
+    if st.button("Hapus Akun"):
+        if st.session_state.username in USERS:
+            del USERS[st.session_state.username]
+            save_users(USERS)
+        if st.session_state.username in SCORES:
+            del SCORES[st.session_state.username]
+            save_scores(SCORES)
+        st.session_state.logged_in = False
+        st.session_state.username = ""
+        st.success("Akun berhasil dihapus")
+        st.rerun()
