@@ -13,7 +13,7 @@ import pandas as pd
 
 # API CONFIG
 
-genai.configure(api_key=os.getenv("sk-lm-9bPcWzW6:f7QO5Qp8r8ltCx6U1CWx"))
+genai.configure(api_key="sk-lm-9bPcWzW6:f7QO5Qp8r8ltCx6U1CWx")
 
 
 # USER DATABASE
