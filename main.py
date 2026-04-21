@@ -13,7 +13,7 @@ import pandas as pd
 
 # API CONFIG
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=os.getenv("sk-lm-9bPcWzW6:f7QO5Qp8r8ltCx6U1CWx"))
 
 
 # USER DATABASE
@@ -149,7 +149,7 @@ elif selected == "Analisis Grafik":
 
         with st.spinner("Memproses..."):
             try:
-                model = genai.GenerativeModel("gemini-1.5-flash")
+                model = genai.GenerativeModel("gemma-4-e4b")
 
                 response = model.generate_content([
                     "Jelaskan kesalahan matematika dalam poin dan beri solusi",
