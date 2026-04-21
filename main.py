@@ -13,12 +13,7 @@ import pandas as pd
 
 # API CONFIG
 
-<<<<<<< HEAD
-genai.configure(api_key="sk-lm-9bPcWzW6:f7QO5Qp8r8ltCx6U1CWx")
-=======
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
->>>>>>> parent of e3e7efa (Update main.py)
-
 
 # USER DATABASE
 
