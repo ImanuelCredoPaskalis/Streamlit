@@ -1,6 +1,7 @@
+from urllib import response
+from xml.parsers.expat import model
 import streamlit as st
 from PIL import Image
-import google.generativeai as genai
 from streamlit_option_menu import option_menu
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,11 +10,61 @@ import os
 import json
 import random
 import pandas as pd
-
+import base64
+import io
+import hashlib
+import requests
 
 # API CONFIG
 
-genai.configure(api_key="Api")
+API_URL = "http://127.0.0.1:1234/v1/chat/completions"
+MODEL_NAME = "gemma-4-e4b-uncensored-hauhaucs-aggressive"
+def encode_image(image):
+    from io import BytesIO
+
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")  # bisa ganti JPEG kalau mau
+    return base64.b64encode(buffer.getvalue()).decode("utf-8")
+def kirim_ke_model(prompt, image=None):
+    try:
+        if image:
+            img_base64 = encode_image(image)
+
+            payload = {
+                "model": MODEL_NAME,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/png;base64,{img_base64}"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        else:
+            payload = {
+                "model": MODEL_NAME,
+                "messages": [
+                    {"role": "user", "content": prompt}
+                ]
+            }
+
+        response = requests.post(API_URL, json=payload)
+
+        if response.status_code != 200:
+            return f"Server error: {response.text}"
+
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 # USER DATABASE
 
@@ -144,35 +195,31 @@ elif selected == "Analisis Grafik":
     camera_image = st.camera_input("Ambil foto grafik")
 
     if st.button("Analisis") and camera_image is not None:
-        image = Image.open(camera_image)
+        try:
+            image = Image.open(camera_image)
 
-        with st.spinner("Memproses..."):
-            try:
-                model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
-
-                response = model.generate_content([
+            with st.spinner("Memproses..."):
+                response = kirim_ke_model(
                     "Jelaskan kesalahan matematika dalam poin dan beri solusi",
                     image
-                ])
-
-                poin = model.generate_content([
+                )
+                poin = kirim_ke_model(
                     "Nilai 1-100 untuk kebenaran, angka saja",
                     image
-                ])
-
+                )
                 st.session_state.hasil_analisis = {
-                    "teks": response.text,
-                    "poin": poin.text
+                    "teks": str(response),
+                    "poin": str(poin)
                 }
 
-            except Exception as e:
-                st.error(f"Error: {e}")
+        except Exception as e:
+            st.error(f"Error: {e}")
 
-    if st.session_state.hasil_analisis:
+    # Aman dari None / belum ada data
+    if "hasil_analisis" in st.session_state and st.session_state.hasil_analisis:
         st.subheader("Hasil:")
         st.write(st.session_state.hasil_analisis["teks"])
         st.write("Nilai:", st.session_state.hasil_analisis["poin"])
-
 
 # KALKULATOR
 
