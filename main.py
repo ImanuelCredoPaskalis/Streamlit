@@ -1,5 +1,6 @@
 from urllib import response
 from xml.parsers.expat import model
+from cv2 import data
 import streamlit as st
 from PIL import Image
 from streamlit_option_menu import option_menu
@@ -17,37 +18,56 @@ import requests
 
 # API CONFIG
 PROMPT = """
-Analisis gambar yang diberikan dengan aturan berikut secara ketat:
-Tugas: Analisis gambar grafik.
-1. Anggap sebagai fungsi kuadrat HANYA jika jelas:
-   - Berbentuk parabola
-   - Ada satu titik puncak
-   - Simetris terhadap sumbu vertikal
-2. Jika salah satu tidak jelas atau ragu:
-   "Gambar tidak relevan dengan fungsi kuadrat."
-3. Jika fungsi kuadrat:
-   - Fokus pada kesalahan besar saja
-   - Gunakan hanya bukti visual (tanpa tebakan)
-4. Jika ada kesalahan:
-   - Sebutkan bagian yang salah + alasan matematis
-   - Berikan perbaikan singkat
-5. Jika tidak ada kesalahan:
-   - Jelaskan singkat apa yang benar
-6. Beri nilai (0–100):
-   - Bentuk parabola
-   - Ketepatan titik puncak
-Larangan:
-- Jangan menebak
-- Jangan mengarang
-Format:
-- Bukan kuadrat:
-  Gambar tidak relevan dengan fungsi kuadrat.
-- Kuadrat:
-  Analisis: ...
-  Poin: ...
+Tugas: Analisis gambar grafik secara ketat dan berbasis bukti visual.
+
+LANGKAH 1 (WAJIB – KLASIFIKASI):
+Tentukan apakah grafik adalah fungsi kuadrat.
+
+Grafik disebut fungsi kuadrat HANYA jika:
+- Kurva berbentuk parabola (melengkung, bukan garis lurus)
+- Memiliki tepat satu titik puncak (maksimum atau minimum)
+- Memiliki simetri terhadap garis vertikal (sumbu simetri)
+
+Jika salah satu ciri tidak terlihat jelas atau meragukan:
+Jawab hanya:
+Gambar tidak relevan dengan fungsi kuadrat.
+
+LANGKAH 2 (JIKA FUNGSI KUADRAT):
+Analisis kesesuaian grafik dengan konsep fungsi kuadrat.
+
+Periksa secara visual:
+- Bentuk parabola (terbuka ke atas atau bawah secara konsisten)
+- Letak titik puncak (apakah sesuai dengan bentuk grafik)
+- Konsistensi kurva (halus dan simetris, tidak patah atau miring aneh)
+- Posisi terhadap sumbu (apakah masuk akal secara matematis)
+
+Fokus hanya pada kesalahan utama, abaikan detail kecil.
+
+JIKA ADA KESALAHAN:
+Analisis: Jelaskan bagian yang salah, sertakan alasan matematis yang jelas, dan berikan perbaikan singkat.
+
+JIKA TIDAK ADA KESALAHAN:
+Analisis: Grafik sudah sesuai dengan sifat fungsi kuadrat (parabola, simetri, dan titik puncak konsisten).
+
+PENILAIAN:
+Berikan skor (0–100) berdasarkan:
+- Ketepatan bentuk parabola
+- Keakuratan titik puncak
+- Konsistensi dan kerapian grafik
+
+LARANGAN:
+- Jangan menebak informasi yang tidak terlihat
+- Jangan mengarang detail
+- Jika ragu sedikit pun, anggap bukan fungsi kuadrat
+
+FORMAT OUTPUT:
+Gambar tidak relevan dengan fungsi kuadrat.
+ATAU
+Analisis: ...
+Poin: ...
 """
-API_URL = "https://interseaboard-multimedial-lavera.ngrok-free.dev/v1/chat/completions"
-MODEL_NAME = "qwen/qwen3-4b-2507"
+API_URL = "http://127.0.0.1:1234/v1/chat/completions"
+MODEL_NAME = "qwen/qwen3-vl-4b"
 def encode_image(image):
     from io import BytesIO
 
@@ -84,16 +104,20 @@ def kirim_ke_model(prompt, image=None):
                 ]
             }
 
+        # ⬇️ SEMUA dari sini HARUS masih di dalam try
         response = requests.post(API_URL, json=payload)
 
         if response.status_code != 200:
             return f"Server error: {response.text}"
 
         data = response.json()
-        return data["choices"][0]["message"]["content"]
+        msg = data.get("choices", [{}])[0].get("message", {})
+        content = msg.get("content")
+
+        return str(content)
 
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error: {str(e)}" 
 
 # USER DATABASE
 
@@ -201,6 +225,7 @@ with st.sidebar:
     )
     st.sidebar.markdown("Oleh: Imanuel Credo Paskalis")
     st.sidebar.markdown("Versi: 1.0.0")
+    st.sidebar.markdown(f"Model AI: {MODEL_NAME}")
     st.sidebar.markdown(
     "<p style='text-align: center; color: grey; opacity: 0.5;'>© 2026 Pendidikan Matematika USD</p>", 
     unsafe_allow_html=True
