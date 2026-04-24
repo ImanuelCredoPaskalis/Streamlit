@@ -16,7 +16,35 @@ import hashlib
 import requests
 
 # API CONFIG
+PROMPT = """
+Analisis gambar yang diberikan dengan aturan berikut secara ketat:
 
+1. Tentukan terlebih dahulu apakah gambar benar-benar merupakan grafik fungsi kuadrat 
+   (berbentuk parabola, memiliki sumbu simetri, dan pola kurva kuadrat).
+
+2. Jika BUKAN grafik fungsi kuadrat, jawab hanya dengan:
+   "Gambar tidak relevan dengan fungsi kuadrat."
+   Tanpa tambahan penjelasan apa pun.
+
+3. Jika MERUPAKAN grafik fungsi kuadrat, lakukan:
+   - Identifikasi elemen penting: titik puncak, sumbu simetri, arah buka parabola.
+   - Periksa konsistensi matematis (skala sumbu, posisi titik, bentuk kurva).
+
+4. Jika ditemukan kesalahan:
+   - Jelaskan secara spesifik dan berbasis bukti visual, bukan asumsi.
+   - Sebutkan bagian mana yang salah dan mengapa salah secara matematis.
+   - Berikan perbaikan yang benar dengan penjelasan sederhana.
+
+5. Jika tidak ada kesalahan:
+   - Jelaskan secara singkat apa yang sudah benar dari grafik tersebut.
+
+6. Dilarang:
+   - Mengarang informasi yang tidak terlihat pada gambar.
+   - Menebak nilai atau titik tanpa bukti visual.
+   - Memberikan interpretasi di luar data gambar.
+
+Jawaban harus ringkas, logis, dan berbasis observasi langsung.
+"""
 API_URL = "https://interseaboard-multimedial-lavera.ngrok-free.dev/v1/chat/completions"
 MODEL_NAME = "gemma-4-e4b-uncensored-hauhaucs-aggressive"
 def encode_image(image):
@@ -199,12 +227,7 @@ elif selected == "Analisis Grafik":
             image = Image.open(camera_image)
 
             with st.spinner("Memproses..."):
-                response = kirim_ke_model(
-                    "Jika Gambar tersebut merupakan gambar fungsi kuadrat, jelaskan kesalahan matematika dalam gambar tersebut dan berikan penjelasan yang mudah dipahami untuk memperbaikinya." \
-                    "Jika tidak ada kesalahan, jelaskan apa yang benar dari grafik tersebut." \
-                    "Jika bukan gambar mengenai fungsi kuadrat, jangan berikan penjelasan, langsung kesimpulan bahwa gambar tersebut tidak relevan dengan fungsi kuadrat." \
-                    ,image
-                )
+                response = kirim_ke_model(PROMPT, image)
                 st.session_state.hasil_analisis = {
                     "teks": str(response),
                 }
