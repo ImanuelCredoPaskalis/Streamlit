@@ -203,13 +203,8 @@ elif selected == "Analisis Grafik":
                     "Jelaskan kesalahan matematika dalam poin dan beri solusi",
                     image
                 )
-                poin = kirim_ke_model(
-                    "Nilai 1-100 untuk kebenaran, angka saja",
-                    image
-                )
                 st.session_state.hasil_analisis = {
                     "teks": str(response),
-                    "poin": str(poin)
                 }
 
         except Exception as e:
