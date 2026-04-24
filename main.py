@@ -19,7 +19,7 @@ import requests
 PROMPT = """
 Analisis gambar yang diberikan dengan aturan berikut secara ketat:
 
-1. Tentukan terlebih dahulu apakah gambar benar-benar merupakan grafik fungsi kuadrat atau bukan.
+1. Tentukan terlebih dahulu apakah gambar benar-benar merupakan grafik fungsi kuadrat atau bukan dan fungsi kuadratnya sesuai dengan grafiknya atau tidak.
 2. Jika BUKAN grafik fungsi kuadrat, jawab hanya dengan:
    "Gambar tidak relevan dengan fungsi kuadrat."
    Tanpa tambahan penjelasan apa pun.
