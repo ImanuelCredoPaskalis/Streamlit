@@ -200,7 +200,9 @@ elif selected == "Analisis Grafik":
 
             with st.spinner("Memproses..."):
                 response = kirim_ke_model(
-                    "Jelaskan kesalahan matematika dalam gambar tersebut dan berikan penjelasan yang mudah dipahami untuk memperbaikinya.",
+                    "Jelaskan kesalahan matematika dalam gambar tersebut dan berikan penjelasan yang mudah dipahami untuk memperbaikinya." \
+                    "Jika tidak ada kesalahan, jelaskan apa yang benar dari grafik tersebut." \
+                    "Jiak Bukan gambar mengenai fungsi kuadrat, jelaskan bahwa ini bukan gambar grafik fungsi kuadrat." \,
                     image
                 )
                 st.session_state.hasil_analisis = {
