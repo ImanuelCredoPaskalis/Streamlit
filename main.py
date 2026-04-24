@@ -19,14 +19,16 @@ import requests
 PROMPT = """
 Analisis gambar yang diberikan dengan aturan berikut secara ketat:
 
-1. Tentukan terlebih dahulu apakah gambar benar-benar merupakan grafik fungsi kuadrat atau bukan dan fungsi kuadratnya sesuai dengan grafiknya atau tidak.
+1. Tentukan apakah gambar merupakan grafik fungsi kuadrat atau BUKAN.
 2. Jika BUKAN grafik fungsi kuadrat, jawab hanya dengan:
    "Gambar tidak relevan dengan fungsi kuadrat."
    Tanpa tambahan penjelasan apa pun.
 3. Jika MERUPAKAN grafik fungsi kuadrat, lakukan:
    - Identifikasi kesalahan dalam penggambaran Grafik Fungsi Kuadrat dengan akurasi tinggi.
+   - Fokus pada kesalahan yang paling mencolok, bukan kesalahan minor.
 4. Jika ditemukan kesalahan:
    - Jelaskan secara spesifik dan berbasis bukti visual, bukan asumsi.
+   - Jelaskan secara akurat, cek benar benar gambar, jangan menebak.
    - Sebutkan bagian mana yang salah dan mengapa salah secara matematis.
    - Berikan perbaikan yang benar dengan penjelasan sederhana.
 5. Jika tidak ada kesalahan:
@@ -35,11 +37,16 @@ Analisis gambar yang diberikan dengan aturan berikut secara ketat:
    - Mengarang informasi yang tidak terlihat pada gambar.
    - Menebak nilai atau titik tanpa bukti visual.
    - Memberikan interpretasi di luar data gambar.
+   - jangan halusinasi, jawab hanya berdasarkan apa yang terlihat pada gambar.
 7. Beri Poin (0-100)Dengan pertimbangan:
    - Bentuk grafik sesuai dengan fungsinya atau tidak.
    - Apakah grafik memiliki titik puncak yang benar.
-
-Jawaban harus ringkas, logis, dan berbasis observasi langsung.
+8. Format Keluaran
+    - Jika BUKAN grafik fungsi kuadrat:
+      "Gambar tidak relevan dengan fungsi kuadrat."
+    - Jika MERUPAKAN grafik fungsi kuadrat:
+      "Analisis: [Penjelasan tentang kesalahan atau keakuratan grafik]"
+      "Poin: [Nilai antara 0-100]"
 """
 API_URL = "https://interseaboard-multimedial-lavera.ngrok-free.dev/v1/chat/completions"
 MODEL_NAME = "gemma-4-e4b-uncensored-hauhaucs-aggressive"
