@@ -47,7 +47,7 @@ Format:
   Poin: ...
 """
 API_URL = "https://interseaboard-multimedial-lavera.ngrok-free.dev/v1/chat/completions"
-MODEL_NAME = "qwen3.5-4b-claude-4.6-opus-reasoning-distilled-v2"
+MODEL_NAME = "qwen/qwen3-4b-2507"
 def encode_image(image):
     from io import BytesIO
 
