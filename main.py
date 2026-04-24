@@ -17,7 +17,7 @@ import requests
 
 # API CONFIG
 
-API_URL = "http://127.0.0.1:1234/v1/chat/completions"
+API_URL = "https://interseaboard-multimedial-lavera.ngrok-free.dev/v1/chat/completions"
 MODEL_NAME = "gemma-4-e4b-uncensored-hauhaucs-aggressive"
 def encode_image(image):
     from io import BytesIO
