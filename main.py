@@ -214,7 +214,6 @@ elif selected == "Analisis Grafik":
     if "hasil_analisis" in st.session_state and st.session_state.hasil_analisis:
         st.subheader("Hasil:")
         st.write(st.session_state.hasil_analisis["teks"])
-        st.write("Nilai:", st.session_state.hasil_analisis["poin"])
 
 # KALKULATOR
 
