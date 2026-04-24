@@ -35,6 +35,10 @@ Analisis gambar yang diberikan dengan aturan berikut secara ketat:
    - Mengarang informasi yang tidak terlihat pada gambar.
    - Menebak nilai atau titik tanpa bukti visual.
    - Memberikan interpretasi di luar data gambar.
+7. Beri Poin (0-100)Dengan pertimbangan:
+   - Bentuk grafik sesuai dengan fungsinya atau tidak.
+   - Apakah grafik memiliki titik puncak yang benar.
+
 Jawaban harus ringkas, logis, dan berbasis observasi langsung.
 """
 API_URL = "https://interseaboard-multimedial-lavera.ngrok-free.dev/v1/chat/completions"
