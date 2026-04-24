@@ -202,7 +202,7 @@ elif selected == "Analisis Grafik":
                 response = kirim_ke_model(
                     "Jelaskan kesalahan matematika dalam gambar tersebut dan berikan penjelasan yang mudah dipahami untuk memperbaikinya." \
                     "Jika tidak ada kesalahan, jelaskan apa yang benar dari grafik tersebut." \
-                    "Jika bukan gambar mengenai fungsi kuadrat, jelaskan bahwa ini bukan gambar grafik fungsi kuadrat.",
+                    "Jika bukan gambar mengenai fungsi kuadrat, jelaskan bahwa ini bukan gambar grafik fungsi kuadrat, dan jangan berikan solusi.",
                     image
                 )
                 st.session_state.hasil_analisis = {
