@@ -21,28 +21,21 @@ Analisis gambar yang diberikan dengan aturan berikut secara ketat:
 
 1. Tentukan terlebih dahulu apakah gambar benar-benar merupakan grafik fungsi kuadrat 
    (berbentuk parabola, memiliki sumbu simetri, dan pola kurva kuadrat).
-
 2. Jika BUKAN grafik fungsi kuadrat, jawab hanya dengan:
    "Gambar tidak relevan dengan fungsi kuadrat."
    Tanpa tambahan penjelasan apa pun.
-
 3. Jika MERUPAKAN grafik fungsi kuadrat, lakukan:
-   - Identifikasi elemen penting: titik puncak, sumbu simetri, arah buka parabola.
-   - Periksa konsistensi matematis (skala sumbu, posisi titik, bentuk kurva).
-
+   - Identifikasi kesalahan dalam penggambaran Grafik Fungsi Kuadrat.
 4. Jika ditemukan kesalahan:
    - Jelaskan secara spesifik dan berbasis bukti visual, bukan asumsi.
    - Sebutkan bagian mana yang salah dan mengapa salah secara matematis.
    - Berikan perbaikan yang benar dengan penjelasan sederhana.
-
 5. Jika tidak ada kesalahan:
    - Jelaskan secara singkat apa yang sudah benar dari grafik tersebut.
-
 6. Dilarang:
    - Mengarang informasi yang tidak terlihat pada gambar.
    - Menebak nilai atau titik tanpa bukti visual.
    - Memberikan interpretasi di luar data gambar.
-
 Jawaban harus ringkas, logis, dan berbasis observasi langsung.
 """
 API_URL = "https://interseaboard-multimedial-lavera.ngrok-free.dev/v1/chat/completions"
