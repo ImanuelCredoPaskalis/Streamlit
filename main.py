@@ -18,35 +18,33 @@ import requests
 # API CONFIG
 PROMPT = """
 Analisis gambar yang diberikan dengan aturan berikut secara ketat:
-
-1. Tentukan apakah gambar merupakan grafik fungsi kuadrat atau BUKAN.
-2. Jika BUKAN grafik fungsi kuadrat, jawab hanya dengan:
+Tugas: Analisis gambar grafik.
+1. Anggap sebagai fungsi kuadrat HANYA jika jelas:
+   - Berbentuk parabola
+   - Ada satu titik puncak
+   - Simetris terhadap sumbu vertikal
+2. Jika salah satu tidak jelas atau ragu:
    "Gambar tidak relevan dengan fungsi kuadrat."
-   Tanpa tambahan penjelasan apa pun.
-3. Jika MERUPAKAN grafik fungsi kuadrat, lakukan:
-   - Identifikasi kesalahan dalam penggambaran Grafik Fungsi Kuadrat dengan akurasi tinggi.
-   - Fokus pada kesalahan yang paling mencolok, bukan kesalahan minor.
-4. Jika ditemukan kesalahan:
-   - Jelaskan secara spesifik dan berbasis bukti visual, bukan asumsi.
-   - Jelaskan secara akurat, cek benar benar gambar, jangan menebak.
-   - Sebutkan bagian mana yang salah dan mengapa salah secara matematis.
-   - Berikan perbaikan yang benar dengan penjelasan sederhana.
+3. Jika fungsi kuadrat:
+   - Fokus pada kesalahan besar saja
+   - Gunakan hanya bukti visual (tanpa tebakan)
+4. Jika ada kesalahan:
+   - Sebutkan bagian yang salah + alasan matematis
+   - Berikan perbaikan singkat
 5. Jika tidak ada kesalahan:
-   - Jelaskan secara singkat apa yang sudah benar dari grafik tersebut.
-6. Dilarang:
-   - Mengarang informasi yang tidak terlihat pada gambar.
-   - Menebak nilai atau titik tanpa bukti visual.
-   - Memberikan interpretasi di luar data gambar.
-   - jangan halusinasi, jawab hanya berdasarkan apa yang terlihat pada gambar.
-7. Beri Poin (0-100)Dengan pertimbangan:
-   - Bentuk grafik sesuai dengan fungsinya atau tidak.
-   - Apakah grafik memiliki titik puncak yang benar.
-8. Format Keluaran
-    - Jika BUKAN grafik fungsi kuadrat:
-      "Gambar tidak relevan dengan fungsi kuadrat."
-    - Jika MERUPAKAN grafik fungsi kuadrat:
-      "Analisis: [Penjelasan tentang kesalahan atau keakuratan grafik]"
-      "Poin: [Nilai antara 0-100]"
+   - Jelaskan singkat apa yang benar
+6. Beri nilai (0–100):
+   - Bentuk parabola
+   - Ketepatan titik puncak
+Larangan:
+- Jangan menebak
+- Jangan mengarang
+Format:
+- Bukan kuadrat:
+  Gambar tidak relevan dengan fungsi kuadrat.
+- Kuadrat:
+  Analisis: ...
+  Poin: ...
 """
 API_URL = "https://interseaboard-multimedial-lavera.ngrok-free.dev/v1/chat/completions"
 MODEL_NAME = "gemma-4-e4b-uncensored-hauhaucs-aggressive"
