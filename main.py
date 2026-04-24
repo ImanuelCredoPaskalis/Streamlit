@@ -19,13 +19,12 @@ import requests
 PROMPT = """
 Analisis gambar yang diberikan dengan aturan berikut secara ketat:
 
-1. Tentukan terlebih dahulu apakah gambar benar-benar merupakan grafik fungsi kuadrat 
-   (berbentuk parabola, memiliki sumbu simetri, dan pola kurva kuadrat).
+1. Tentukan terlebih dahulu apakah gambar benar-benar merupakan grafik fungsi kuadrat atau bukan.
 2. Jika BUKAN grafik fungsi kuadrat, jawab hanya dengan:
    "Gambar tidak relevan dengan fungsi kuadrat."
    Tanpa tambahan penjelasan apa pun.
 3. Jika MERUPAKAN grafik fungsi kuadrat, lakukan:
-   - Identifikasi kesalahan dalam penggambaran Grafik Fungsi Kuadrat.
+   - Identifikasi kesalahan dalam penggambaran Grafik Fungsi Kuadrat dengan akurasi tinggi.
 4. Jika ditemukan kesalahan:
    - Jelaskan secara spesifik dan berbasis bukti visual, bukan asumsi.
    - Sebutkan bagian mana yang salah dan mengapa salah secara matematis.
