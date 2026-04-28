@@ -15,62 +15,31 @@ import base64
 import io
 import hashlib
 import requests
-
-# API CONFIG
+from PIL import Image, ImageEnhance, ImageFilter
+# PROMPT ANALISIS GRAFIK
 PROMPT = """
-Tugas: Analisis gambar grafik secara ketat dan berbasis bukti visual.
-
-LANGKAH 1 (WAJIB – KLASIFIKASI):
-Tentukan apakah grafik adalah fungsi kuadrat.
-
-Grafik disebut fungsi kuadrat HANYA jika:
-- Kurva berbentuk parabola (melengkung, bukan garis lurus)
-- Memiliki tepat satu titik puncak (maksimum atau minimum)
-- Memiliki simetri terhadap garis vertikal (sumbu simetri)
-
-Jika salah satu ciri tidak terlihat jelas atau meragukan:
-Jawab hanya:
-Gambar tidak relevan dengan fungsi kuadrat.
-
-LANGKAH 2 (JIKA FUNGSI KUADRAT):
-Analisis kesesuaian grafik dengan konsep fungsi kuadrat.
-
-Periksa secara visual:
-- Bentuk parabola (terbuka ke atas atau bawah secara konsisten)
-- Letak titik puncak (apakah sesuai dengan bentuk grafik)
-- Konsistensi kurva (halus dan simetris, tidak patah atau miring aneh)
-- Posisi terhadap sumbu (apakah masuk akal secara matematis)
-
-Fokus hanya pada kesalahan utama, abaikan detail kecil.
-
-JIKA ADA KESALAHAN:
-Analisis: Jelaskan bagian yang salah, sertakan alasan matematis yang jelas, dan berikan perbaikan singkat.
-
-JIKA TIDAK ADA KESALAHAN:
-Analisis: Grafik sudah sesuai dengan sifat fungsi kuadrat (parabola, simetri, dan titik puncak konsisten).
-
-PENILAIAN:
-Berikan skor (0–100) berdasarkan:
-- Ketepatan bentuk parabola
-- Keakuratan titik puncak
-- Konsistensi dan kerapian grafik
-
-LARANGAN:
-- Jangan menebak informasi yang tidak terlihat
-- Jangan mengarang detail
-- Jika ragu sedikit pun, anggap bukan fungsi kuadrat
-
-FORMAT OUTPUT:
-Gambar tidak relevan dengan fungsi kuadrat.
-ATAU
+Lihat gambar dengan teliti.
+1. Baca angka dan persamaan yang terlihat.
+2. Tentukan titik puncak grafik.
+3. Tentukan arah buka parabola.
+4. Cocokkan grafik dengan persamaan.
+5. Sebutkan kesalahan utama dan kesalahan detil mulai dari tata cara penggambaran grafik.
+Jawaban singkat.
+Format:
 Analisis: ...
-Poin: ...
+Poin: .../100
 """
 API_URL = "http://127.0.0.1:1234/v1/chat/completions"
-MODEL_NAME = "qwen/qwen3-vl-4b"
+MODEL_NAME = "qwen/qwen3-vl-8b"
+
+def preprocess(img):
+    img = img.convert("L")  # grayscale
+    img = ImageEnhance.Contrast(img).enhance(2.0)
+    img = img.filter(ImageFilter.SHARPEN)
+    img.thumbnail((1024,1024))
+    return img
 def encode_image(image):
     from io import BytesIO
-
     buffer = BytesIO()
     image.save(buffer, format="PNG")  # bisa ganti JPEG kalau mau
     return base64.b64encode(buffer.getvalue()).decode("utf-8")
@@ -103,24 +72,16 @@ def kirim_ke_model(prompt, image=None):
                     {"role": "user", "content": prompt}
                 ]
             }
-
-        # ⬇️ SEMUA dari sini HARUS masih di dalam try
         response = requests.post(API_URL, json=payload)
-
         if response.status_code != 200:
             return f"Server error: {response.text}"
-
         data = response.json()
         msg = data.get("choices", [{}])[0].get("message", {})
         content = msg.get("content")
-
         return str(content)
-
     except Exception as e:
         return f"Error: {str(e)}" 
-
 # USER DATABASE
-
 def load_users():
     try:
         with open("users.json", "r") as f:
@@ -131,52 +92,34 @@ def load_users():
 def save_users(users):
     with open("users.json", "w") as f:
         json.dump(users, f)
-
 USERS = load_users()
-
-
 # SCORE DATABASE
-
 def load_scores():
     try:
         with open("scores.json", "r") as f:
             return json.load(f)
     except:
         return {}
-
 def save_scores(data):
     with open("scores.json", "w") as f:
         json.dump(data, f)
-
 SCORES = load_scores()
-
-
 # SESSION STATE
-
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-
 if "username" not in st.session_state:
     st.session_state.username = ""
-
 if "user_id" not in st.session_state:
     st.session_state.user_id = str(uuid.uuid4())
-
 if "hasil_analisis" not in st.session_state:
     st.session_state.hasil_analisis = None
-
-
 # LOGIN / REGISTER
-
 if not st.session_state.logged_in:
     st.title("Masuk / Daftar")
-
     menu_auth = st.radio("Pilih Menu", ["Masuk", "Daftar"])
-
     if menu_auth == "Masuk":
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
-
         if st.button("Masuk"):
             if username in USERS and USERS[username] == password:
                 st.session_state.logged_in = True
@@ -185,12 +128,10 @@ if not st.session_state.logged_in:
                 st.rerun()
             else:
                 st.error("Username atau password salah")
-
     else:
         new_user = st.text_input("Username Baru")
         new_pass = st.text_input("Password Baru", type="password")
         confirm_pass = st.text_input("Konfirmasi Password", type="password")
-
         if st.button("Daftar"):
             if new_user in USERS:
                 st.warning("Username sudah digunakan")
@@ -202,37 +143,30 @@ if not st.session_state.logged_in:
                 USERS[new_user] = new_pass
                 save_users(USERS)
                 st.success("Registrasi berhasil! Silakan login.")
-
     st.stop()
-
-
 # SIDEBAR
-
 with st.sidebar:
-    st.write(f"Masuk sebagai: {st.session_state.username}")
-    
+    st.write(f"Masuk sebagai: {st.session_state.username}") 
     if st.button("Keluar"):
         st.session_state.logged_in = False
         st.session_state.username = ""
         st.rerun()
-
     selected = option_menu(
         "Menu",
-        ["Beranda", "Analisis Grafik", "Kalkulator", "Materi", "Latihan Soal", "Pengaturan"],
+        ["Beranda", "Analisis Grafik", "Kalkulator Grafik", "Materi", "Latihan Soal", "Pengaturan"],
         icons=["house", "graph-up", "calculator", "book", "pen", "gear"],
         menu_icon="cast",
         default_index=0,
     )
     st.sidebar.markdown("Oleh: Imanuel Credo Paskalis")
     st.sidebar.markdown("Versi: 1.0.0")
-    st.sidebar.markdown(f"Model AI: {MODEL_NAME}")
+    st.sidebar.markdown(f"Model AI: qwen3")
     st.sidebar.markdown(
     "<p style='text-align: center; color: grey; opacity: 0.5;'>© 2026 Pendidikan Matematika USD</p>", 
     unsafe_allow_html=True
     )
 
 # BERANDA
-
 if selected == "Beranda":
     st.title("GrafKu")
     st.write("Selamat datang di GrafKu! Aplikasi pembelajaran matematika yang memanfaatkan kecerdasan buatan untuk membantu kamu memahami konsep matematika dengan lebih mudah. Pilih menu di sidebar untuk mulai belajar!")
@@ -240,62 +174,120 @@ if selected == "Beranda":
                "\n1. Memahami konsep dasar fungsi kuadrat"
                "\n2. Menganalisis grafik fungsi kuadrat")
 
-
 # ANALISIS GRAFIK (AI)
-
 elif selected == "Analisis Grafik":
-    st.title("Analisis Grafik")
-
-    camera_image = st.camera_input("Ambil foto grafik")
-
-    if st.button("Analisis") and camera_image is not None:
+    st.title("Analisis Grafik Fungsi Kuadrat")
+    camera_image = st.camera_input("Ambil foto grafik fungsi kuadrat yang ingin dianalisis")
+    if st.button("Analisis Grafik") and camera_image is not None:
         try:
             image = Image.open(camera_image)
-
+            image = preprocess(image)
             with st.spinner("Memproses..."):
                 response = kirim_ke_model(PROMPT, image)
                 st.session_state.hasil_analisis = {
                     "teks": str(response),
                 }
-
         except Exception as e:
             st.error(f"Error: {e}")
-
-    # Aman dari None / belum ada data
     if "hasil_analisis" in st.session_state and st.session_state.hasil_analisis:
         st.subheader("Hasil:")
-        st.write(st.session_state.hasil_analisis["teks"])
+        st.success(st.session_state.hasil_analisis["teks"])
 
 # KALKULATOR
 
-elif selected == "Kalkulator":
+elif selected == "Kalkulator Grafik":
     st.title("Kalkulator Fungsi Kuadrat")
-
     a = st.number_input("Koefisien x²", value=1)
     b = st.number_input("Koefisien x", value=0)
     c = st.number_input("Konstanta", value=0)
-
-    st.write(f"f(x) = {a}x² + {b}x + {c}")
-
+    fungsi = f"f(x) = {a}x² + {b}x + {c}"
     if st.button("Buat Grafik"):
-        x = np.linspace(-10, 10, 400)
-        y = a*x**2 + b*x + c
-
-        fig, ax = plt.subplots()
-        ax.plot(x, y)
-        ax.axhline(0, linestyle='--')
-        ax.axvline(0, linestyle='--')
-        ax.set_title("Grafik Fungsi Kuadrat")
-        ax.grid()
-
-        st.pyplot(fig)
-
-
+        if a == 0:
+            x = np.linspace(-10, 10, 400)
+            y = a*x**2 + b*x + c
+            fig, ax = plt.subplots()
+            ax.plot(x, y)
+            ax.set_xlim(-10,10)
+            ax.set_ylim(-10,10)
+            ax.set_xticks(np.arange(-10, 11, 1))
+            ax.set_yticks(np.arange(-10, 11, 1))
+            ax.axhline(0, linestyle='--')
+            ax.axvline(0, linestyle='--')
+            ax.set_title(f"Grafik {fungsi}")
+            ax.grid()
+            st.pyplot(fig)
+        else:
+            x = np.linspace(-10, 10, 400)
+            y = a*x**2 + b*x + c
+            xp = -b/(2*a)
+            yp = c - b**2/(4*a)
+            fig, ax = plt.subplots()
+            ax.scatter(xp, yp, color="black", s=100, marker=".", zorder=5)
+            ax.text(xp, yp-2, f"Titik Puncak\n({xp:.2f}, {yp:.2f})", ha='center', va='bottom', fontsize=9, color='black')
+            ax.plot(x, y)
+            ax.set_xlim(-10,10)
+            ax.set_ylim(-10,10)
+            ax.set_xticks(np.arange(-10, 11, 1))
+            ax.set_yticks(np.arange(-10, 11, 1))
+            ax.axhline(0, linestyle='--')
+            ax.axvline(0, linestyle='--')
+            ax.set_title(f"Grafik {fungsi}")
+            ax.grid()
+            st.pyplot(fig)
+            st.success(f"Arah buka parabola: {'ke atas' if a > 0 else 'ke bawah'}")
 # MATERI
 
 elif selected == "Materi":
     st.title("Materi")
-    st.write("Materi akan ditambahkan.")
+    st.write("Pilih materi yang ingin dipelajari")
+    # simpan halaman aktif
+    if "halaman_materi" not in st.session_state:
+        st.session_state.halaman_materi = "home"
+    if st.session_state.halaman_materi == "home":
+        materi = [
+            ("Menggambar Grafik Fungsi Kuadrat", "Cara menggambar grafik fungsi kuadrat dengan mudah.", "kuadrat"),
+            ("Menganalisis Grafik Fungsi Kuadrat", "Cara menganalisis grafik fungsi kuadrat untuk memahami sifat-sifatnya.", "analisis"),
+            ("Operasi Bentuk Aljabar", "Cara melakukan operasi aljabar pada fungsi kuadrat untuk menyelesaikan masalah.", "operasi")
+        ]
+        cols = st.columns(3)
+
+        for i, item in enumerate(materi):
+            judul, desc, key_page = item
+            with cols[i % 3]:
+                with st.container(border=True):
+                    st.subheader(judul)
+                    st.write(desc)
+                    for _ in range(2):
+                        st.write("")
+                    if st.button(
+                        "Buka Materi",
+                        key=f"btn_{key_page}",
+                        use_container_width=True
+                    ):
+                        st.session_state.halaman_materi = key_page
+                        st.rerun()
+
+    # =========================
+    # DETAIL MATERI
+    # =========================
+    else:
+
+        if st.button("Kembali", use_container_width=True):
+            st.session_state.halaman_materi = "home"
+            st.rerun()
+
+        page = st.session_state.halaman_materi
+
+        if page == "kuadrat":
+            st.header("Menggambar Grafik Fungsi Kuadrat")
+
+
+        elif page == "analisis":
+            st.header("Menganalisis Grafik Fungsi Kuadrat")
+
+
+        elif page == "operasi":
+            st.header("Operasi Bentuk Aljabar")
 
 
 # LATIHAN SOAL (UPGRADE)
