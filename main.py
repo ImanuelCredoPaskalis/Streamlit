@@ -177,6 +177,8 @@ if selected == "Beranda":
 # ANALISIS GRAFIK (AI)
 elif selected == "Analisis Grafik":
     st.title("Analisis Grafik Fungsi Kuadrat")
+    camera_image = None
+    upload_image = None
     if st.button("Ambil Foto"):
         st.info("Arahkan kamera ke grafik fungsi kuadrat yang ingin dianalisis, pastikan pencahayaan cukup dan gambar jelas.")
         try:
@@ -184,10 +186,11 @@ elif selected == "Analisis Grafik":
         except Exception as e:
                 st.error(f"Error saat mengakses kamera: {e}")
                 camera_image = None
-    upload_image = st.file_uploader(
-        "Atau upload foto",
-        type=["png", "jpg", "jpeg"]
-    )
+    else:
+        upload_image = st.file_uploader(
+            "Atau upload foto",
+            type=["png", "jpg", "jpeg"]
+        )
     if st.button("Analisis Grafik") and (camera_image is not None or upload_image is not None):
         try:
             if camera_image is not None:
@@ -355,7 +358,6 @@ elif selected == "Latihan Soal":
         save_scores(SCORES)
         st.session_state.soal_aktif = random.sample(bank_soal, 5)
         st.rerun()
-
     # Pemberitauan detail jawaban
     if "detail" in st.session_state:
         st.subheader("Hasil Jawaban")
@@ -363,8 +365,7 @@ elif selected == "Latihan Soal":
             if hasil == 1:
                 st.success(f"Soal {i+1}: Jawaban Benar")
             else:
-                st.error(f"Soal {i+1}: Jawaban Salah")
-
+                st.error(f"Soal {i+1}: Jawaban Salah")\
     # Uji coba skor
     if st.session_state.username in SCORES:
         st.subheader("Riwayat Nilai")
