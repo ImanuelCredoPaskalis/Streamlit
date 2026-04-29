@@ -177,10 +177,23 @@ if selected == "Beranda":
 # ANALISIS GRAFIK (AI)
 elif selected == "Analisis Grafik":
     st.title("Analisis Grafik Fungsi Kuadrat")
-    camera_image = st.camera_input("Ambil foto grafik fungsi kuadrat yang ingin dianalisis")
-    if st.button("Analisis Grafik") and camera_image is not None:
+    if st.button("Ambil Foto"):
+        st.info("Arahkan kamera ke grafik fungsi kuadrat yang ingin dianalisis, pastikan pencahayaan cukup dan gambar jelas.")
         try:
-            image = Image.open(camera_image)
+             camera_image = st.camera_input("")
+        except Exception as e:
+                st.error(f"Error saat mengakses kamera: {e}")
+                camera_image = None
+    upload_image = st.file_uploader(
+        "Atau upload foto",
+        type=["png", "jpg", "jpeg"]
+    )
+    if st.button("Analisis Grafik") and (camera_image is not None or upload_image is not None):
+        try:
+            if camera_image is not None:
+                image = Image.open(camera_image)
+            else:
+                image = Image.open(upload_image)
             image = preprocess(image)
             with st.spinner("Memproses..."):
                 response = kirim_ke_model(PROMPT, image)
