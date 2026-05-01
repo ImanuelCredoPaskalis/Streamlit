@@ -170,26 +170,79 @@ if selected == "Beranda":
 # ANALISIS GRAFIK (AI)
 elif selected == "Analisis Grafik":
     st.title("Analisis Grafik Fungsi Kuadrat")
-pilihan = st.radio("Pilih sumber gambar:", ["Upload Gambar", "Gunakan Kamera"])
-camera_image = None
-if pilihan == "Upload Gambar":
-    camera_image = st.file_uploader("Upload foto grafik", type=["png", "jpg", "jpeg"])
-elif pilihan == "Gunakan Kamera":
-    camera_image = st.camera_input("Ambil foto grafik")
-if st.button("Analisis Grafik") and camera_image is not None:
-    try:
-        image = Image.open(camera_image)
-        image = preprocess(image)
 
-        with st.spinner("Memproses..."):
-            response = kirim_ke_model(PROMPT, image)
+    # state
+    if "proses_analisis" not in st.session_state:
+        st.session_state.proses_analisis = False
 
-        st.session_state.hasil_analisis = {
-            "teks": str(response)
-        }
-    except Exception as e:
-        st.error(f"Error: {e}")
+    if "hasil_analisis" not in st.session_state:
+        st.session_state.hasil_analisis = None
 
+    if "gambar_cache" not in st.session_state:
+        st.session_state.gambar_cache = None
+
+    pilihan = st.radio(
+        "Pilih sumber gambar:",
+        ["Upload Gambar", "Gunakan Kamera"]
+    )
+
+    camera_image = None
+
+    if pilihan == "Upload Gambar":
+        camera_image = st.file_uploader(
+        "Upload foto grafik",
+        type=["png", "jpg", "jpeg"]
+    )
+
+    if camera_image is not None:
+        st.image(
+            camera_image,
+            caption="Preview",
+            use_container_width=True
+        )
+
+    elif pilihan == "Gunakan Kamera":
+        camera_image = st.camera_input("Ambil foto grafik")
+
+    # tekan tombol = simpan gambar + mulai proses
+    if st.button("Analisis Grafik"):
+
+        if camera_image is None:
+            st.warning("Masukkan gambar dulu. Teknologi belum bisa membaca kehampaan.")
+        else:
+            st.session_state.gambar_cache = camera_image
+            st.session_state.proses_analisis = True
+            st.session_state.hasil_analisis = None
+            st.rerun()
+
+    # proses analisis
+    if st.session_state.proses_analisis:
+        try:
+            image = Image.open(st.session_state.gambar_cache)
+            image = preprocess(image)
+
+            with st.spinner("Memproses gambar..."):
+                response = kirim_ke_model(PROMPT, image)
+
+            st.session_state.hasil_analisis = response
+            st.session_state.proses_analisis = False
+            st.rerun()
+
+        except Exception as e:
+            st.session_state.proses_analisis = False
+            st.error(f"Error: {e}")
+
+    # tampilkan hasil
+    if st.session_state.hasil_analisis:
+        st.subheader("Hasil Analisis")
+        st.write(st.session_state.hasil_analisis)
+
+    # tombol reset
+    if st.button("Reset Hasil"):
+        st.session_state.hasil_analisis = None
+        st.session_state.gambar_cache = None
+        st.session_state.proses_analisis = False
+        st.rerun()
 # KALKULATOR
 
 elif selected == "Kalkulator Grafik":
