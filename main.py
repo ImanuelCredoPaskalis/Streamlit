@@ -109,7 +109,7 @@ if "hasil_analisis" not in st.session_state:
 # LOGIN / REGISTER
 if not st.session_state.logged_in:
     st.title("Masuk / Daftar")
-    menu_auth = st.radio("Pilih Menu", ["Masuk", "Daftar"])
+    menu_auth = st.radio("Pilih Menu", ["Masuk", "Daftar"], horizontal=True)
     if menu_auth == "Masuk":
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
@@ -152,7 +152,6 @@ with st.sidebar:
         default_index=0,
     )
     st.sidebar.markdown("Oleh: Imanuel Credo Paskalis")
-    st.sidebar.markdown("Versi: 1.0.0")
     st.sidebar.markdown(f"Model AI: qwen3")
     st.sidebar.markdown(
     "<p style='text-align: center; color: grey; opacity: 0.5;'>© 2026 Pendidikan Matematika USD</p>", 
@@ -174,39 +173,30 @@ elif selected == "Analisis Grafik":
     # state
     if "proses_analisis" not in st.session_state:
         st.session_state.proses_analisis = False
-
     if "hasil_analisis" not in st.session_state:
         st.session_state.hasil_analisis = None
-
     if "gambar_cache" not in st.session_state:
         st.session_state.gambar_cache = None
-
     pilihan = st.radio(
         "Pilih sumber gambar:",
-        ["Upload Gambar", "Gunakan Kamera"]
+        ["Upload Gambar", "Gunakan Kamera"], horizontal=True, label_visibility="collapsed"
     )
-
     camera_image = None
-
     if pilihan == "Upload Gambar":
         camera_image = st.file_uploader(
         "Upload foto grafik",
         type=["png", "jpg", "jpeg"]
     )
-
     if camera_image is not None:
         st.image(
             camera_image,
             caption="Preview",
             use_container_width=True
         )
-
     elif pilihan == "Gunakan Kamera":
         camera_image = st.camera_input("Ambil foto grafik")
-
     # tekan tombol = simpan gambar + mulai proses
     if st.button("Analisis Grafik"):
-
         if camera_image is None:
             st.warning("Masukkan gambar dulu. Teknologi belum bisa membaca kehampaan.")
         else:
@@ -214,7 +204,6 @@ elif selected == "Analisis Grafik":
             st.session_state.proses_analisis = True
             st.session_state.hasil_analisis = None
             st.rerun()
-
     # proses analisis
     if st.session_state.proses_analisis:
         try:
@@ -231,12 +220,10 @@ elif selected == "Analisis Grafik":
         except Exception as e:
             st.session_state.proses_analisis = False
             st.error(f"Error: {e}")
-
     # tampilkan hasil
     if st.session_state.hasil_analisis:
         st.subheader("Hasil Analisis")
         st.write(st.session_state.hasil_analisis)
-
     # tombol reset
     if st.button("Reset Hasil"):
         st.session_state.hasil_analisis = None
