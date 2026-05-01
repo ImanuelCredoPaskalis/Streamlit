@@ -1,19 +1,12 @@
-from urllib import response
-from xml.parsers.expat import model
-from cv2 import data
 import streamlit as st
-from PIL import Image
 from streamlit_option_menu import option_menu
 import numpy as np
 import matplotlib.pyplot as plt
 import uuid
-import os
 import json
 import random
 import pandas as pd
 import base64
-import io
-import hashlib
 import requests
 from PIL import Image, ImageEnhance, ImageFilter
 # PROMPT ANALISIS GRAFIK
@@ -177,37 +170,25 @@ if selected == "Beranda":
 # ANALISIS GRAFIK (AI)
 elif selected == "Analisis Grafik":
     st.title("Analisis Grafik Fungsi Kuadrat")
-    camera_image = None
-    upload_image = None
-    if st.button("Ambil Foto"):
-        st.info("Arahkan kamera ke grafik fungsi kuadrat yang ingin dianalisis, pastikan pencahayaan cukup dan gambar jelas.")
-        try:
-             camera_image = st.camera_input("")
-        except Exception as e:
-                st.error(f"Error saat mengakses kamera: {e}")
-                camera_image = None
-    else:
-        upload_image = st.file_uploader(
-            "Atau upload foto",
-            type=["png", "jpg", "jpeg"]
-        )
-    if st.button("Analisis Grafik") and (camera_image is not None or upload_image is not None):
-        try:
-            if camera_image is not None:
-                image = Image.open(camera_image)
-            else:
-                image = Image.open(upload_image)
-            image = preprocess(image)
-            with st.spinner("Memproses..."):
-                response = kirim_ke_model(PROMPT, image)
-                st.session_state.hasil_analisis = {
-                    "teks": str(response),
-                }
-        except Exception as e:
-            st.error(f"Error: {e}")
-    if "hasil_analisis" in st.session_state and st.session_state.hasil_analisis:
-        st.subheader("Hasil:")
-        st.success(st.session_state.hasil_analisis["teks"])
+pilihan = st.radio("Pilih sumber gambar:", ["Upload Gambar", "Gunakan Kamera"])
+camera_image = None
+if pilihan == "Upload Gambar":
+    camera_image = st.file_uploader("Upload foto grafik", type=["png", "jpg", "jpeg"])
+elif pilihan == "Gunakan Kamera":
+    camera_image = st.camera_input("Ambil foto grafik")
+if st.button("Analisis Grafik") and camera_image is not None:
+    try:
+        image = Image.open(camera_image)
+        image = preprocess(image)
+
+        with st.spinner("Memproses..."):
+            response = kirim_ke_model(PROMPT, image)
+
+        st.session_state.hasil_analisis = {
+            "teks": str(response)
+        }
+    except Exception as e:
+        st.error(f"Error: {e}")
 
 # KALKULATOR
 
@@ -358,6 +339,7 @@ elif selected == "Latihan Soal":
         save_scores(SCORES)
         st.session_state.soal_aktif = random.sample(bank_soal, 5)
         st.rerun()
+
     # Pemberitauan detail jawaban
     if "detail" in st.session_state:
         st.subheader("Hasil Jawaban")
@@ -365,7 +347,8 @@ elif selected == "Latihan Soal":
             if hasil == 1:
                 st.success(f"Soal {i+1}: Jawaban Benar")
             else:
-                st.error(f"Soal {i+1}: Jawaban Salah")\
+                st.error(f"Soal {i+1}: Jawaban Salah")
+
     # Uji coba skor
     if st.session_state.username in SCORES:
         st.subheader("Riwayat Nilai")
