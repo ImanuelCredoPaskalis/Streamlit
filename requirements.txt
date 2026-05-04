@@ -3,7 +3,7 @@ google-generativeai
 streamlit_option_menu
 matplotlib
 numpy
-opencv-python
 pandas
 Pillow
 requests
+python-dotenv
