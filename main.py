@@ -1,4 +1,5 @@
 import streamlit as st
+from io import BytesIO
 from streamlit_option_menu import option_menu
 import numpy as np
 import matplotlib.pyplot as plt
@@ -32,9 +33,8 @@ def preprocess(img):
     img.thumbnail((1024,1024))
     return img
 def encode_image(image):
-    from io import BytesIO
     buffer = BytesIO()
-    image.save(buffer, format="PNG")  # bisa ganti JPEG kalau mau
+    image.save(buffer, format="PNG") 
     return base64.b64encode(buffer.getvalue()).decode("utf-8")
 def kirim_ke_model(prompt, image=None):
     try:
@@ -195,10 +195,10 @@ elif selected == "Analisis Grafik":
         )
     elif pilihan == "Gunakan Kamera":
         camera_image = st.camera_input("Ambil foto grafik")
-    # tekan tombol = simpan gambar + mulai proses
+
     if st.button("Analisis Grafik"):
         if camera_image is None:
-            st.warning("Masukkan gambar dulu. Teknologi belum bisa membaca kehampaan.")
+            st.warning("Masukkan gambar dulu")
         else:
             st.session_state.gambar_cache = camera_image
             st.session_state.proses_analisis = True
@@ -273,7 +273,6 @@ elif selected == "Kalkulator Grafik":
             st.pyplot(fig)
             st.success(f"Arah buka parabola: {'ke atas' if a > 0 else 'ke bawah'}")
 # MATERI
-
 elif selected == "Materi":
     st.title("Materi")
     st.write("Pilih materi yang ingin dipelajari")
@@ -287,7 +286,6 @@ elif selected == "Materi":
             ("Operasi Bentuk Aljabar", "Cara melakukan operasi aljabar pada fungsi kuadrat untuk menyelesaikan masalah.", "operasi")
         ]
         cols = st.columns(3)
-
         for i, item in enumerate(materi):
             judul, desc, key_page = item
             with cols[i % 3]:
@@ -304,9 +302,6 @@ elif selected == "Materi":
                         st.session_state.halaman_materi = key_page
                         st.rerun()
 
-    # =========================
-    # DETAIL MATERI
-    # =========================
     else:
 
         if st.button("Kembali", use_container_width=True):
@@ -327,7 +322,7 @@ elif selected == "Materi":
             st.header("Operasi Bentuk Aljabar")
 
 
-# LATIHAN SOAL (UPGRADE)
+# LATIHAN SOAL (contoh soal sederhana, bisa dikembangkan lagi)
 
 elif selected == "Latihan Soal":
     st.title("Latihan Soal")
@@ -380,7 +375,6 @@ elif selected == "Latihan Soal":
         st.session_state.soal_aktif = random.sample(bank_soal, 5)
         st.rerun()
 
-    # Pemberitauan detail jawaban
     if "detail" in st.session_state:
         st.subheader("Hasil Jawaban")
         for i, hasil in enumerate(st.session_state.detail):
