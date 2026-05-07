@@ -12,18 +12,99 @@ import pandas as pd
 import base64
 import requests
 from PIL import Image, ImageEnhance, ImageFilter
+from datetime import datetime
 # PROMPT ANALISIS GRAFIK
 PROMPT = """
-Lihat gambar dengan teliti.
-1. Baca angka dan persamaan yang terlihat.
-2. Tentukan titik puncak grafik.
-3. Tentukan arah buka parabola.
-4. Cocokkan grafik dengan persamaan.
-5. Sebutkan kesalahan utama dan kesalahan detil mulai dari tata cara penggambaran grafik.
-Jawaban singkat.
-Format:
-Analisis: ...
-Poin: .../100
+Anda adalah AI evaluator pembelajaran matematika yang bertugas menganalisis gambar tulisan tangan siswa dalam menggambar grafik fungsi kuadrat berdasarkan indikator pembelajaran yang diberikan guru.
+
+Tugas utama Anda:
+1. Analisis gambar grafik fungsi kuadrat siswa.
+2. Cocokkan grafik dengan persamaan fungsi yang diberikan.
+3. Evaluasi berdasarkan indikator pembelajaran.
+4. Tentukan status setiap indikator:
+   - ✅ Tercapai
+   - ⚠️ Sebagian Tercapai
+   - ❌ Belum Tercapai
+5. Setelah status, WAJIB berikan:
+   - alasan mengapa benar/salah,
+   - konsep matematika yang tepat,
+   - bentuk perbaikan yang seharusnya dilakukan siswa.
+6. Berikan feedback adaptif yang komunikatif, edukatif, interaktif, dan membimbing siswa memperbaiki kesalahannya.
+7. Gunakan bahasa sederhana, jelas, suportif, dan mendidik.
+8. Jangan hanya mengatakan “salah”, tetapi jelaskan bagian konsep yang keliru.
+9. Jika ada bagian yang benar, tetap berikan apresiasi sebelum menjelaskan kesalahan.
+10. Evaluasi harus detail, sistematis, dan konsisten.
+
+Hal yang wajib diperiksa:
+- Bentuk parabola
+- Arah buka parabola berdasarkan tanda koefisien a
+- Titik puncak
+- Nilai maksimum/minimum
+- Sumbu simetri
+- Titik potong sumbu-x
+- Titik potong sumbu-y
+- Konsistensi grafik dengan fungsi
+- Hubungan akar persamaan dengan titik potong sumbu-x
+- Ketepatan posisi koordinat pada bidang Cartesius
+
+Gunakan indikator berikut sebagai dasar evaluasi:
+
+Siswa dapat menunjukkan grafik parabola dari beberapa gambar grafik yang diberikan.
+Siswa dapat mengelompokkan grafik fungsi kuadrat dan bukan fungsi kuadrat dengan benar.
+Siswa dapat menentukan titik-titik koordinat dari fungsi kuadrat dengan tepat.
+Siswa dapat menggambar grafik fungsi kuadrat pada bidang Cartesius secara benar dan rapi.
+Siswa dapat menentukan arah buka parabola berdasarkan tanda koefisien a.
+Siswa dapat menjelaskan hubungan nilai koefisien a terhadap arah buka grafik fungsi kuadrat.
+Siswa dapat menentukan koordinat titik puncak fungsi kuadrat dengan tepat.
+Siswa dapat menentukan nilai maksimum atau minimum dari grafik fungsi kuadrat.
+Siswa dapat menentukan persamaan sumbu simetri fungsi kuadrat dengan benar.
+Siswa dapat menunjukkan letak sumbu simetri pada grafik parabola.
+Siswa dapat menentukan titik potong grafik fungsi kuadrat dengan sumbu-x menggunakan pemfaktoran atau rumus kuadrat secara tepat.
+Siswa dapat menjelaskan hubungan akar-akar persamaan kuadrat dengan titik potong grafik terhadap sumbu-x.
+Siswa dapat menentukan titik potong grafik fungsi kuadrat dengan sumbu-y melalui substitusi nilai x = 0.
+Siswa dapat menunjukkan koordinat titik potong sumbu-y pada grafik parabola dengan benar.
+
+Format output WAJIB menggunakan tabel berikut:
+
+| Indikator Keberhasilan | Hasil Analisis | Status | Alasan dan Perbaikan |
+|---|---|---|---|
+| ... | ... | ... | ✅ / ⚠️ / ❌ | Jelaskan alasan benar/salah serta konsep dan perbaikannya |
+
+Aturan evaluasi:
+- Jika benar sepenuhnya → beri status ✅ Tercapai.
+- Jika ada sebagian konsep benar namun masih ada kesalahan → beri status ⚠️ Sebagian Tercapai.
+- Jika konsep utama salah → beri status ❌ Belum Tercapai.
+- Jangan hanya fokus hasil akhir, tetapi analisis proses berpikir yang tampak dari grafik siswa.
+
+Kemudian buat bagian:
+
+# Feedback Adaptif
+
+Ketentuan feedback:
+- Sebutkan bagian yang sudah benar.
+- Jelaskan kesalahan konsep secara spesifik.
+- Gunakan gaya bahasa suportif dan membimbing.
+- Jangan menghakimi siswa.
+- Singkat.
+
+Contoh gaya feedback:
+- “Kamu sudah benar menentukan titik puncak parabola.”
+- “Namun arah buka parabola masih belum sesuai dengan tanda koefisien a.”
+- “Coba perhatikan: jika a bernilai positif, parabola akan membuka ke atas.”
+- “Mengapa grafikmu memotong sumbu-x padahal fungsi selalu bernilai positif?”
+
+Kemudian buat bagian:
+
+# Rekomendasi Selanjutnya
+
+Remedial Jika ada indikator yang belum tercapai atau Beri Rekomendasi Pengayaan Jika semua indikator tercapai.
+
+Pastikan analisis:
+- detail,
+- mendidik,
+- adaptif,
+- konsisten,
+- dan mudah dipahami siswa.
 """
 load_dotenv()
 API_URL = os.getenv("API_URL")
@@ -130,6 +211,20 @@ def save_scores(data):
     with open("scores.json", "w") as f:
         json.dump(data, f)
 SCORES = load_scores()
+
+# HISTORY DATABASE
+def load_history():
+    try:
+        with open("history.json", "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_history(data):
+    with open("history.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+HISTORY = load_history()
 # SESSION STATE
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -179,8 +274,8 @@ with st.sidebar:
         st.rerun()
     selected = option_menu(
         "Menu",
-        ["Beranda", "Analisis Grafik", "Kalkulator Grafik", "Materi", "Latihan Soal", "Pengaturan"],
-        icons=["house", "graph-up", "calculator", "book", "pen", "gear"],
+        ["Beranda", "Analisis Grafik","Riwayat Analisis", "Kalkulator Grafik", "Materi", "Latihan Soal", "Pengaturan"],
+        icons=["house", "graph-up","clock-history","calculator", "book", "pen", "gear"],
         menu_icon="cast",
         default_index=0,
     )
@@ -247,6 +342,16 @@ elif selected == "Analisis Grafik":
                 response = kirim_ke_model(PROMPT, image)
 
             st.session_state.hasil_analisis = response
+            # SIMPAN RIWAYAT ANALISIS
+            user = st.session_state.username
+            if user not in HISTORY:
+                HISTORY[user] = []
+            HISTORY[user].append({
+                "id": str(uuid.uuid4()),
+                "tanggal": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "hasil": response
+            })
+            save_history(HISTORY)
             st.session_state.proses_analisis = False
             st.rerun()
 
@@ -263,8 +368,34 @@ elif selected == "Analisis Grafik":
         st.session_state.gambar_cache = None
         st.session_state.proses_analisis = False
         st.rerun()
-# KALKULATOR
 
+# RIWAYAT ANALISIS
+elif selected == "Riwayat Analisis":
+
+    st.title("Riwayat Analisis")
+
+    user = st.session_state.username
+
+    if user in HISTORY and len(HISTORY[user]) > 0:
+
+        for item in reversed(HISTORY[user]):
+
+            with st.expander(f"Analisis - {item['tanggal']}"):
+
+                st.write(item["hasil"])
+
+    else:
+        st.info("Belum ada riwayat analisis")
+
+    if st.button("Reset Riwayat Analisis"):
+
+        if user in HISTORY:
+            del HISTORY[user]
+            save_history(HISTORY)
+
+        st.success("Riwayat berhasil dihapus")
+        st.rerun()
+# KALKULATOR
 elif selected == "Kalkulator Grafik":
     st.title("Kalkulator Fungsi Kuadrat")
     a = st.number_input("Koefisien x²", value=1)
@@ -399,6 +530,7 @@ elif selected == "Latihan Soal":
         st.session_state.skor = skor
 
         user = st.session_state.username
+        
 
         if user not in SCORES:
             SCORES[user] = []
